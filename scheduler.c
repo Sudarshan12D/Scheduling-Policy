@@ -96,7 +96,7 @@ void policy_FIFO(struct job *head) {
 
   struct job *current_job = head;
   int time = 0;
-  printf("Execution trace with FIFO:\n");
+  printf("Execution trace with FIFO:\n\n");
 
   if (head == NULL)
   {
@@ -111,13 +111,13 @@ void policy_FIFO(struct job *head) {
       time = current_job->arrival;
     }
 
-    printf("t=%d: [Job %d] arrived at [%d], ran for [%d]\n", time, current_job->arrival, current_job->length);
+    printf("    t=%d: [Job %d] arrived at [%d], ran for [%d]\n", time, current_job->arrival, current_job->length);
 
     time += current_job->length;
     current_job = current_job->next;
   }
 
-  printf("End of execution with FIFO.\n");
+  printf("\nEnd of execution with FIFO.\n");
 
   
 
@@ -133,7 +133,7 @@ void analyze_FIFO(struct job *head) {
     int total_response_time = 0;
     int num_jobs = 0;
 
-    printf("Begin analyzing FIFO:\n");
+    //printf("Begin analyzing FIFO:\n");
 
     while (current_job != NULL) {
         // If the job's arrival time is in the future, fast-forward the time
@@ -145,7 +145,7 @@ void analyze_FIFO(struct job *head) {
         int job_turnaround_time = job_response_time + current_job->length;  // turnaround time for this job
         int job_waiting_time = job_response_time;  // waiting time for this job is equal to the response time in FIFO
 
-        printf("Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n", 
+        printf("    Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n", 
                current_job->id, job_response_time, job_turnaround_time, job_waiting_time);
 
         total_response_time += job_response_time;
@@ -161,8 +161,8 @@ void analyze_FIFO(struct job *head) {
     float average_turnaround_time = (float)total_turnaround_time / num_jobs;
     float average_waiting_time = (float)total_waiting_time / num_jobs;
 
-    printf("Average -- Response: %.2f  Turnaround %.2f  Wait %.2f\n", average_response_time, average_turnaround_time, average_waiting_time);
-    printf("End analyzing FIFO.\n");
+    printf("\nAverage -- Response: %.2f  Turnaround %.2f  Wait %.2f\n", average_response_time, average_turnaround_time, average_waiting_time);
+    
 }
 
 int main(int argc, char **argv) {
@@ -184,9 +184,9 @@ int main(int argc, char **argv) {
   if (strcmp(policy, "FIFO") == 0 ) {
     policy_FIFO(head);
     if (analysis) {
-      printf("Begin analyzing FIFO:\n");
+      printf("Begin analyzing FIFO:\n\n");
       analyze_FIFO(head);
-      printf("End analyzing FIFO.\n");
+      printf("\nEnd analyzing FIFO.\n");
     }
 
     exit(EXIT_SUCCESS);

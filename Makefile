@@ -2,12 +2,16 @@
 all: scheduler.out
 
 scheduler.out: scheduler.c 
-	gcc -g -Wall -o $@ $<
+	gcc -o scheduler.out scheduler.c 
 
 .PHONY: clean
 clean: 
 	rm -f scheduler.out
 
-.PHONY: test
+.PHONY: test , test1
 test: scheduler.out
 	./scheduler.out 0 FIFO fifo.in
+
+test1: scheduler.out
+	./scheduler.out 1 FIFO fifo.in
+
