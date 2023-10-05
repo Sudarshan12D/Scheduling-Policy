@@ -8,10 +8,10 @@ scheduler.out: scheduler.c
 clean: 
 	rm -f scheduler.out
 
-.PHONY: test , test1
+.PHONY: test , test2
 test: scheduler.out
 	./scheduler.out 0 FIFO fifo.in
 
-test1: scheduler.out
+test2: scheduler.out
 	./scheduler.out 1 FIFO fifo.in
 

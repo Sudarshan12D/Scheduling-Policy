@@ -111,13 +111,14 @@ void policy_FIFO(struct job *head) {
       time = current_job->arrival;
     }
 
-    printf("    t=%d: [Job %d] arrived at [%d], ran for [%d]\n", time, current_job->arrival, current_job->length);
+    printf("    t=%d: [Job %d] arrived at [%d], ran for [%d]\n", time, current_job->id, current_job->arrival, current_job->length);
 
     time += current_job->length;
     current_job = current_job->next;
   }
 
   printf("\nEnd of execution with FIFO.\n");
+  
 
   
 
