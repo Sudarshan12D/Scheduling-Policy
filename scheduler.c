@@ -117,7 +117,7 @@ void policy_FIFO(struct job *head) {
     current_job = current_job->next;
   }
 
-  printf("End fo execution with FIFO.\n");
+  printf("End of execution with FIFO.\n");
 
   
 
@@ -126,8 +126,43 @@ void policy_FIFO(struct job *head) {
 
 void analyze_FIFO(struct job *head) {
   // TODO: Fill this in
+    struct job *current_job = head;
+    int time = 0;  // this will track the current time of the scheduler
+    int total_turnaround_time = 0;
+    int total_waiting_time = 0;
+    int total_response_time = 0;
+    int num_jobs = 0;
 
-  return;
+    printf("Begin analyzing FIFO:\n");
+
+    while (current_job != NULL) {
+        // If the job's arrival time is in the future, fast-forward the time
+        if (current_job->arrival > time) {
+            time = current_job->arrival;
+        }
+
+        int job_response_time = time - current_job->arrival;  // response time for this job
+        int job_turnaround_time = job_response_time + current_job->length;  // turnaround time for this job
+        int job_waiting_time = job_response_time;  // waiting time for this job is equal to the response time in FIFO
+
+        printf("Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n", 
+               current_job->id, job_response_time, job_turnaround_time, job_waiting_time);
+
+        total_response_time += job_response_time;
+        total_waiting_time += job_waiting_time;
+        total_turnaround_time += job_turnaround_time;
+
+        time += current_job->length;  // increase time by the job's length
+        current_job = current_job->next;  // go to the next job in the list
+        num_jobs++;  // increase the job count
+    }
+
+    float average_response_time = (float)total_response_time / num_jobs;
+    float average_turnaround_time = (float)total_turnaround_time / num_jobs;
+    float average_waiting_time = (float)total_waiting_time / num_jobs;
+
+    printf("Average -- Response: %.2f  Turnaround %.2f  Wait %.2f\n", average_response_time, average_turnaround_time, average_waiting_time);
+    printf("End analyzing FIFO.\n");
 }
 
 int main(int argc, char **argv) {

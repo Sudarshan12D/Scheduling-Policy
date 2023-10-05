@@ -1,4 +1,4 @@
-Execution trace with FIFO:
+-Execution trace with FIFO:
 t=0: [Job 0] arrived at [0], ran for: [3]
 t=3: [Job 1] arrived at [0], ran for: [10]
 t=13: [Job 2] arrived at [0], ran for: [16]
