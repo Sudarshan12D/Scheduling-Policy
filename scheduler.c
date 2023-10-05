@@ -166,6 +166,58 @@ void analyze_FIFO(struct job *head) {
     
 }
 
+void policy_SJF(struct job *head) {
+    struct job *current_job = head;
+    struct job *shortest_job;
+    int time = 0;  // to track the current time of the scheduler
+
+    printf("Execution trace with SJF:\n\n");
+
+    while (head != NULL) {
+        shortest_job = NULL;
+        current_job = head;
+
+        // Find the shortest job that has arrived by now
+        while (current_job != NULL) {
+            if (current_job->arrival <= time &&
+               (shortest_job == NULL || current_job->length < shortest_job->length ||
+                (current_job->length == shortest_job->length && current_job->arrival < shortest_job->arrival))) {
+                shortest_job = current_job;
+            }
+            current_job = current_job->next;
+        }
+
+        // If no job has arrived by now, fast forward time to the arrival of the next job
+        if (shortest_job == NULL) {
+            time++;
+            continue;
+        }
+
+        printf("    t=%d: [Job %d] arrived at [%d], ran for: [%d]\n", time, shortest_job->id, shortest_job->arrival, shortest_job->length);
+        time += shortest_job->length;
+
+        // Remove the shortest job from the list
+        if (shortest_job == head) {
+            head = shortest_job->next;
+        } else {
+            current_job = head;
+            while (current_job->next != shortest_job) {
+                current_job = current_job->next;
+            }
+            current_job->next = shortest_job->next;
+        }
+        free(shortest_job);
+    }
+
+    printf("\nEnd of execution with SJF.\n");
+}
+
+void analyze_SJF(struct job *head) {
+  
+    //TODO: Fill this in
+}
+
+
 int main(int argc, char **argv) {
 
  if (argc < 4) {
@@ -185,12 +237,23 @@ int main(int argc, char **argv) {
   if (strcmp(policy, "FIFO") == 0 ) {
     policy_FIFO(head);
     if (analysis) {
-      printf("Begin analyzing FIFO:\n\n");
+      printf("\nBegin analyzing FIFO:\n\n");
       analyze_FIFO(head);
       printf("\nEnd analyzing FIFO.\n");
     }
 
     exit(EXIT_SUCCESS);
+  }
+
+  if (strcmp(policy, "SJF") == 0) {
+    policy_SJF(head);
+    if (analysis) {
+      printf("\nBegin analyzing SJF:\n\n");
+      analyze_SJF(head);
+      printf("\nEnd analyzing SJF:\n");
+    }
+    exit(EXIT_SUCCESS);
+
   }
 
   // TODO: Add other policies 
