@@ -91,31 +91,64 @@ void read_workload_file(char *filename)
   return;
 }
 
+struct job *sorted_insert(struct job *head, struct job *new_job)
+{
+  if (!head || new_job->arrival < head->arrival ||
+      (new_job->arrival == head->arrival && new_job->id < head->id))
+  {
+    new_job->next = head;
+    return new_job;
+  }
+
+  struct job *current = head;
+  while (current->next && (new_job->arrival > current->next->arrival ||
+                           (new_job->arrival == current->next->arrival && new_job->id > current->next->id)))
+  {
+    current = current->next;
+  }
+  new_job->next = current->next;
+  current->next = new_job;
+
+  return head;
+}
+
+struct job *sort_jobs(struct job *head)
+{
+  struct job *sorted = NULL;
+  struct job *current = head;
+  struct job *next;
+
+  while (current)
+  {
+    next = current->next;
+    sorted = sorted_insert(sorted, current);
+    current = next;
+  }
+
+  return sorted;
+}
+
 void policy_FIFO(struct job *head)
 {
   // TODO: Fill this in
   // Sort the linked list in order from shortest arrival to farthest arrival time
   // Merge sort? after the list is sorted, print the list with how the output desires
 
-  struct job *current_job = head;
+  head = sort_jobs(head);
+
   int time = 0;
+  struct job *current_job = head;
+
   printf("Execution trace with FIFO:\n\n");
 
-  if (head == NULL)
-  {
-    printf("No jobs in the list.");
-    return;
-  }
-
-  while (current_job != NULL)
+  while (current_job)
   {
     if (current_job->arrival > time)
     {
       time = current_job->arrival;
     }
-
-    printf("    t=%d: [Job %d] arrived at [%d], ran for [%d]\n", time, current_job->id, current_job->arrival, current_job->length);
-
+    printf("    t=%d: [Job %d] arrived at [%d], ran for [%d]\n",
+           time, current_job->id, current_job->arrival, current_job->length);
     time += current_job->length;
     current_job = current_job->next;
   }
