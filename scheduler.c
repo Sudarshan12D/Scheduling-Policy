@@ -12,6 +12,8 @@ struct job
   int arrival;
   int length;
   struct job *next;
+  int startTime;
+  int endTime;
 };
 
 /*** Globals ***/
