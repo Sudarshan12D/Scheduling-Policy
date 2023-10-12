@@ -203,13 +203,19 @@ void analyze_FIFO(struct job *head)
   printf("Average -- Response: %.2f  Turnaround %.2f  Wait %.2f\n", average_response_time, average_turnaround_time, average_waiting_time);
 }
 
-void policy_SJF(struct job *head)
+void swapJobs(struct job *job1, struct job *job2)
 {
-  struct job *curr = head;
-  int time = 0;
+  int temp_id = job1->id, temp_arrival = job1->arrival, temp_length = job1->length;
+  job1->id = job2->id;
+  job1->arrival = job2->arrival;
+  job1->length = job2->length;
+  job2->id = temp_id;
+  job2->arrival = temp_arrival;
+  job2->length = temp_length;
+}
 
-  // Sort the jobs based on their length in ascending order
-  // This can be done using a simple bubble sort for this example
+void sortJobsByLength(struct job *head)
+{
   int swapped;
   struct job *ptr1;
   struct job *lptr = NULL;
@@ -226,25 +232,21 @@ void policy_SJF(struct job *head)
     {
       if (ptr1->length > ptr1->next->length)
       {
-        // Swap the jobs
-        int temp_id = ptr1->id;
-        int temp_arrival = ptr1->arrival;
-        int temp_length = ptr1->length;
-        ptr1->id = ptr1->next->id;
-        ptr1->arrival = ptr1->next->arrival;
-        ptr1->length = ptr1->next->length;
-        ptr1->next->id = temp_id;
-        ptr1->next->arrival = temp_arrival;
-        ptr1->next->length = temp_length;
+        swapJobs(ptr1, ptr1->next);
         swapped = 1;
       }
       ptr1 = ptr1->next;
     }
     lptr = ptr1;
   } while (swapped);
+}
 
-  // Execute the sorted jobs
-  curr = head;
+void policy_SJF(struct job *head)
+{
+  struct job *curr = head;
+  int time = 0;
+
+  sortJobsByLength(head);
 
   while (curr != NULL)
   {
@@ -300,28 +302,31 @@ void analyze_SJF(struct job *head)
     struct job *job = tmpArr[i];
 
     int response_time = job->startTime - job->arrival;
-    int turnaroundTime = job->endTime - job->arrival;
-    int waitTime = response_time;
-
+    int turnaround_time = job->endTime - job->arrival;
+    int wait_time = response_time;
     printf("Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n",
-           job->id, response_time, turnaroundTime, waitTime);
+           job->id, response_time, turnaround_time, wait_time);
   }
 
-  double avg_response_time = 0.0;
-  double avg_turnaround_time = 0.0;
-  double avg_wait_time = 0.0;
+  int total_response_time = 0.0;
+  int total_turnaround_time = 0.0;
+  int total_wait_time = 0.0;
 
-  for (int i = 0; i < count; i++)
+  int j = 0;
+  while (j < count)
   {
-    struct job *job = tmpArr[i];
-    avg_response_time += (double)(job->startTime - job->arrival);
-    avg_turnaround_time += (double)(job->endTime - job->arrival);
-    avg_wait_time += (double)(job->startTime - job->arrival);
+    struct job *job = tmpArr[j];
+
+    total_response_time += (job->startTime - job->arrival);
+    total_turnaround_time += (job->endTime - job->arrival);
+    total_wait_time += (job->startTime - job->arrival);
+
+    j++;
   }
 
-  avg_response_time /= count;
-  avg_turnaround_time /= count;
-  avg_wait_time /= count;
+  double avg_response_time = total_response_time / count;
+  double avg_turnaround_time = total_turnaround_time / count;
+  double avg_wait_time = total_wait_time / count;
 
   printf("Average -- Response: %.2lf  Turnaround %.2lf  Wait %.2lf\n",
          avg_response_time, avg_turnaround_time, avg_wait_time);
