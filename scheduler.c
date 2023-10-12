@@ -200,66 +200,133 @@ void analyze_FIFO(struct job *head)
   float average_turnaround_time = (float)total_turnaround_time / num_jobs;
   float average_waiting_time = (float)total_waiting_time / num_jobs;
 
-  printf("\nAverage -- Response: %.2f  Turnaround %.2f  Wait %.2f\n", average_response_time, average_turnaround_time, average_waiting_time);
+  printf("Average -- Response: %.2f  Turnaround %.2f  Wait %.2f\n", average_response_time, average_turnaround_time, average_waiting_time);
 }
 
 void policy_SJF(struct job *head)
 {
-  struct job *current_job = head;
-  struct job *shortest_job;
-  int time = 0; // to track the current time of the scheduler
+  struct job *curr = head;
+  int time = 0;
 
-  printf("Execution trace with SJF:\n\n");
+  // Sort the jobs based on their length in ascending order
+  // This can be done using a simple bubble sort for this example
+  int swapped;
+  struct job *ptr1;
+  struct job *lptr = NULL;
 
-  while (head != NULL)
+  if (head == NULL)
+    return;
+
+  do
   {
-    shortest_job = NULL;
-    current_job = head;
+    swapped = 0;
+    ptr1 = head;
 
-    // Find the shortest job that has arrived by now
-    while (current_job != NULL)
+    while (ptr1->next != lptr)
     {
-      if (current_job->arrival <= time &&
-          (shortest_job == NULL || current_job->length < shortest_job->length ||
-           (current_job->length == shortest_job->length && current_job->arrival < shortest_job->arrival)))
+      if (ptr1->length > ptr1->next->length)
       {
-        shortest_job = current_job;
+        // Swap the jobs
+        int temp_id = ptr1->id;
+        int temp_arrival = ptr1->arrival;
+        int temp_length = ptr1->length;
+        ptr1->id = ptr1->next->id;
+        ptr1->arrival = ptr1->next->arrival;
+        ptr1->length = ptr1->next->length;
+        ptr1->next->id = temp_id;
+        ptr1->next->arrival = temp_arrival;
+        ptr1->next->length = temp_length;
+        swapped = 1;
       }
-      current_job = current_job->next;
+      ptr1 = ptr1->next;
+    }
+    lptr = ptr1;
+  } while (swapped);
+
+  // Execute the sorted jobs
+  curr = head;
+
+  while (curr != NULL)
+  {
+    if (curr->arrival > time)
+    {
+      time = curr->arrival;
     }
 
-    // If no job has arrived by now, fast forward time to the arrival of the next job
-    if (shortest_job == NULL)
-    {
-      time++;
-      continue;
-    }
+    curr->startTime = time;
+    curr->endTime = time + curr->length;
 
-    printf("    t=%d: [Job %d] arrived at [%d], ran for: [%d]\n", time, shortest_job->id, shortest_job->arrival, shortest_job->length);
-    time += shortest_job->length;
+    printf("t=%d: [Job %d] arrived at [%d], ran for: [%d]\n",
+           time, curr->id, curr->arrival, curr->length);
 
-    // Remove the shortest job from the list
-    if (shortest_job == head)
-    {
-      head = shortest_job->next;
-    }
-    else
-    {
-      current_job = head;
-      while (current_job->next != shortest_job)
-      {
-        current_job = current_job->next;
-      }
-      current_job->next = shortest_job->next;
-    }
-    free(shortest_job);
+    time = curr->endTime;
+    curr = curr->next;
   }
 
-  printf("\nEnd of execution with SJF.\n");
+  printf("End of execution with SJF.\n");
 }
 
 void analyze_SJF(struct job *head)
 {
+  int count = 0;
+  struct job *curr = head;
+  struct job **tmpArr = (struct job *)malloc(sizeof(struct job *) * count);
+
+  while (curr != NULL)
+  {
+    tmpArr[count++] = curr;
+    curr = curr->next;
+  }
+
+  int i = 0;
+  while (i < count - 1)
+  {
+    int j = 0;
+    while (j < count - i - 1)
+    {
+      if (tmpArr[j]->id > tmpArr[j + 1]->id)
+      {
+        struct job *temp = tmpArr[j];
+        tmpArr[j] = tmpArr[j + 1];
+        tmpArr[j + 1] = temp;
+      }
+      j++;
+    }
+    i++;
+  }
+
+  for (int i = 0; i < count; i++)
+  {
+    struct job *job = tmpArr[i];
+
+    int response_time = job->startTime - job->arrival;
+    int turnaroundTime = job->endTime - job->arrival;
+    int waitTime = response_time;
+
+    printf("Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n",
+           job->id, response_time, turnaroundTime, waitTime);
+  }
+
+  double avg_response_time = 0.0;
+  double avg_turnaround_time = 0.0;
+  double avg_wait_time = 0.0;
+
+  for (int i = 0; i < count; i++)
+  {
+    struct job *job = tmpArr[i];
+    avg_response_time += (double)(job->startTime - job->arrival);
+    avg_turnaround_time += (double)(job->endTime - job->arrival);
+    avg_wait_time += (double)(job->startTime - job->arrival);
+  }
+
+  avg_response_time /= count;
+  avg_turnaround_time /= count;
+  avg_wait_time /= count;
+
+  printf("Average -- Response: %.2lf  Turnaround %.2lf  Wait %.2lf\n",
+         avg_response_time, avg_turnaround_time, avg_wait_time);
+
+  free(tmpArr);
 }
 
 int main(int argc, char **argv)
@@ -298,9 +365,9 @@ int main(int argc, char **argv)
     policy_SJF(head);
     if (analysis)
     {
-      printf("\nBegin analyzing SJF:\n\n");
+      printf("\nBegin analyzing SJF:\n");
       analyze_SJF(head);
-      printf("\nEnd analyzing SJF:\n");
+      printf("End analyzing SJF:\n");
     }
     exit(EXIT_SUCCESS);
   }
