@@ -258,51 +258,6 @@ void policy_SJF(struct job *head)
 
 void analyze_SJF(struct job *head)
 {
-  struct job *current_job = head;
-  int time = 0;
-  int total_response_time = 0;
-  int total_turnaround_time = 0;
-  int total_wait_time = 0;
-  int num_jobs = get_job_count(head);
-
-  printf("\nBegin analyzing SJF:\n\n");
-
-  while (current_job != NULL)
-  {
-    int response_time = time - current_job->arrival;
-    int turnaround_time = response_time + current_job->length;
-    int wait_time = response_time;
-
-    printf("Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n",
-           current_job->id, response_time, turnaround_time, wait_time);
-
-    total_response_time += response_time;
-    total_turnaround_time += turnaround_time;
-    total_wait_time += wait_time;
-
-    time += current_job->length;
-    current_job = current_job->next;
-  }
-
-  float average_response_time = (float)total_response_time / num_jobs;
-  float average_turnaround_time = (float)(total_turnaround_time + total_response_time) / num_jobs;
-  float average_wait_time = (float)total_wait_time / num_jobs;
-
-  printf("\nAverage -- Response: %.2f  Turnaround %.2f  Wait %.2f\n", average_response_time, average_turnaround_time, average_wait_time);
-
-  printf("End analyzing SJF.\n");
-}
-
-int get_job_count(struct job *head)
-{
-  int count = 0;
-  struct job *current_job = head;
-  while (current_job != NULL)
-  {
-    count++;
-    current_job = current_job->next;
-  }
-  return count;
 }
 
 int main(int argc, char **argv)
